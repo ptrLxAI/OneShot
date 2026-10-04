@@ -54,6 +54,11 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+    lint {
+        // targetSdk stays 32 in the behavior-neutral toolchain upgrade; raising it is #30.
+        // OneShot is not distributed through Google Play.
+        disable += 'ExpiredTargetSdkVersion'
+    }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
