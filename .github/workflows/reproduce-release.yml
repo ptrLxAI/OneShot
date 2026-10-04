@@ -39,6 +39,11 @@ jobs:
     steps:
       - name: Install Debian JDK and apksigcopier
         run: |
+          . /etc/os-release
+          if [ "$VERSION_CODENAME" = bullseye ]; then
+            # Debian 11 left LTS in 2026 and its security pool is archived; main still resolves.
+            sed -i '/debian-security/d' /etc/apt/sources.list
+          fi
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends openjdk-${{ inputs.jdk || '11' }}-jdk-headless git ca-certificates unzip curl python3-pip >/dev/null
           pip3 install --quiet apksigcopier
