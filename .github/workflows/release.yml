@@ -71,8 +71,11 @@ jobs:
         run: |
           . /etc/os-release
           if [ "$VERSION_CODENAME" = bullseye ]; then
-            # Debian 11 left LTS in 2026 and its security pool is archived; main still resolves.
-            sed -i '/debian-security/d' /etc/apt/sources.list
+            # Debian 11 left LTS in 2026: its packages are served from archive.debian.org now.
+            printf '%s\n' \
+              'deb http://archive.debian.org/debian bullseye main' \
+              'deb http://archive.debian.org/debian bullseye-updates main' \
+              'deb http://archive.debian.org/debian-security bullseye-security main' > /etc/apt/sources.list
           fi
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends openjdk-11-jdk-headless git ca-certificates unzip python3-pip >/dev/null
