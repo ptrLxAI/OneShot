@@ -27,6 +27,9 @@ object ClassFileStrings {
         return result
     }
 
+    /** Class files read for [className], for diagnostics. */
+    fun files(className: String): List<String> = classFiles(className)
+
     private fun classFiles(className: String): List<String> {
         val path = "/" + className.replace('.', '/') + ".class"
         val url = ClassFileStrings::class.java.getResource(path)
@@ -52,24 +55,30 @@ object ClassFileStrings {
         input.readUnsignedShort() // minor version
         input.readUnsignedShort() // major version
         val count = input.readUnsignedShort()
-        val strings = mutableSetOf<String>()
+        val utf8 = arrayOfNulls<String>(count)
+        val classNameIndex = IntArray(count)
         var index = 1
         while (index < count) {
             when (val tag = input.readUnsignedByte()) {
-                1 -> strings += input.readUTF() // CONSTANT_Utf8, same encoding as DataInput.readUTF
+                1 -> utf8[index] = input.readUTF() // CONSTANT_Utf8, same encoding as DataInput.readUTF
+                7 -> classNameIndex[index] = input.readUnsignedShort() // CONSTANT_Class
                 3, 4 -> input.skipFully(4) // Integer, Float
                 5, 6 -> {
                     input.skipFully(8) // Long, Double take two slots
                     index++
                 }
-                7, 8, 16, 19, 20 -> input.skipFully(2) // Class, String, MethodType, Module, Package
+                8, 16, 19, 20 -> input.skipFully(2) // String, MethodType, Module, Package
                 9, 10, 11, 12, 17, 18 -> input.skipFully(4) // refs, NameAndType, Dynamic, InvokeDynamic
                 15 -> input.skipFully(3) // MethodHandle
-                else -> error("Unknown constant pool tag $tag in $name")
+                else -> error("Unknown constant pool tag $tag at index $index in $name")
             }
             index++
         }
-        return strings
+        // Self-check: this_class must name the class that was read, otherwise the pool was misparsed.
+        input.readUnsignedShort() // access flags
+        val thisClass = utf8[classNameIndex[input.readUnsignedShort()]]
+        check("/$thisClass.class" == name) { "constant pool of $name misparsed (this_class = $thisClass)" }
+        return utf8.filterNotNull().toSet()
     }
 
     private fun DataInputStream.skipFully(bytes: Int) = readFully(ByteArray(bytes))

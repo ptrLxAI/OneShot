@@ -30,7 +30,11 @@ class FileNamingContractTest {
     @Test
     fun `view model builds names from the pinned pattern`() {
         val constants = ClassFileStrings.of(DiaryViewModel::class.java)
-        assertTrue("timestamp pattern yyyyMMddHHmmss changed", "yyyyMMddHHmmss" in constants)
+        assertTrue(
+            "timestamp pattern yyyyMMddHHmmss changed: " + constants.filter { "yyyy" in it || "OneShot" in it || "jpg" in it } +
+                " of ${constants.size} constants, files ${ClassFileStrings.files(DiaryViewModel::class.java.name)}",
+            "yyyyMMddHHmmss" in constants,
+        )
         assertTrue("image name OneShot_<timestamp>.jpg changed", constants.containsTemplate("OneShot_", ".jpg"))
         assertTrue("export name OneShot_DB_<timestamp>.json changed", constants.containsTemplate("OneShot_DB_", ".json"))
     }
@@ -65,7 +69,11 @@ class FileNamingContractTest {
     @Test
     fun `file manager writes images and exports with the pinned MIME types and resolves by file name`() {
         val constants = ClassFileStrings.of(DiaryFileManager::class.java)
-        assertTrue("image MIME type image/jpg changed", "image/jpg" in constants)
+        assertTrue(
+            "image MIME type image/jpg changed: " + constants.filter { "/" in it && it.length < 40 } +
+                " of ${constants.size} constants, files ${ClassFileStrings.files(DiaryFileManager::class.java.name)}",
+            "image/jpg" in constants,
+        )
         assertTrue("export MIME type application/json changed", "application/json" in constants)
         assertTrue(
             "document URI building document/<tree path>%2F<filename> changed",
