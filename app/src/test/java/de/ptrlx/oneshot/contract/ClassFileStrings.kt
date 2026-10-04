@@ -3,6 +3,7 @@ package de.ptrlx.oneshot.contract
 import java.io.DataInputStream
 import java.io.File
 import java.io.InputStream
+import java.net.JarURLConnection
 
 /**
  * Reads the string constants of compiled classes from the test classpath.
@@ -13,13 +14,20 @@ import java.io.InputStream
  */
 object ClassFileStrings {
 
-    /** String constants of [clazz] and its nested, inner, anonymous and lambda classes. */
+    /**
+     * String constants of [clazz], its nested, inner, anonymous and lambda classes, and the Compose
+     * live-literal class of its source file.
+     *
+     * In debug builds the Compose compiler moves Kotlin literals of a file `X.kt` into a generated
+     * `LiveLiterals$XKt` class (release builds keep them inline), so that class is read as well.
+     * The source file is assumed to be named after the class, as for all classes checked here.
+     */
     fun of(clazz: Class<*>): Set<String> = of(clazz.name)
 
-    /** String constants of the class named [className] and its nested, inner, anonymous and lambda classes. */
+    /** See [of]. */
     fun of(className: String): Set<String> {
         val result = mutableSetOf<String>()
-        for (resource in classFiles(className)) {
+        for (resource in files(className)) {
             val stream = ClassFileStrings::class.java.getResourceAsStream(resource)
                 ?: error("Class file $resource not found on the test classpath")
             stream.use { result += readUtf8Constants(it, resource) }
@@ -27,26 +35,31 @@ object ClassFileStrings {
         return result
     }
 
-    /** Class files read for [className], for diagnostics. */
-    fun files(className: String): List<String> = classFiles(className)
+    /** Class files read for [className]. */
+    fun files(className: String): List<String> {
+        val path = classPath(className)
+        ClassFileStrings::class.java.getResource(path) ?: error("Class file $path not found on the test classpath")
+        val liveLiterals = classPath(className.substringBeforeLast('.') + ".LiveLiterals$" + className.substringAfterLast('.') + "Kt")
+        return listOf(path) + nestedClasses(path) +
+            listOf(liveLiterals).filter { ClassFileStrings::class.java.getResource(it) != null }
+    }
 
-    private fun classFiles(className: String): List<String> {
-        val path = "/" + className.replace('.', '/') + ".class"
-        val url = ClassFileStrings::class.java.getResource(path)
-            ?: error("Class file $path not found on the test classpath")
+    private fun classPath(className: String) = "/" + className.replace('.', '/') + ".class"
+
+    private fun nestedClasses(path: String): List<String> {
+        val url = ClassFileStrings::class.java.getResource(path)!!
+        val directory = path.substringBeforeLast('/')
         val prefix = path.substringAfterLast('/').removeSuffix(".class") + "$"
-        val siblings = if (url.protocol == "file") {
-            File(url.toURI()).parentFile
-                .listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".class") }
-                .orEmpty()
-                .map { path.substringBeforeLast('/') + "/" + it.name }
-        } else {
-            generateSequence(1) { it + 1 }
-                .map { path.removeSuffix(".class") + "$" + it + ".class" }
-                .takeWhile { ClassFileStrings::class.java.getResource(it) != null }
+        val names = when (url.protocol) {
+            "file" -> File(url.toURI()).parentFile.list().orEmpty().toList()
+            "jar" -> (url.openConnection() as JarURLConnection).jarFile.entries().asSequence()
+                .map { it.name }
+                .filter { it.startsWith(directory.removePrefix("/") + "/") }
+                .map { it.substringAfterLast('/') }
                 .toList()
+            else -> error("Cannot list classes next to $url")
         }
-        return listOf(path) + siblings.sorted()
+        return names.filter { it.startsWith(prefix) && it.endsWith(".class") }.sorted().map { "$directory/$it" }
     }
 
     private fun readUtf8Constants(stream: InputStream, name: String): Set<String> {
