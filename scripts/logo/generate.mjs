@@ -19,7 +19,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 
 // Palette of logo v1, plus a darker orange as the end of the body gradient.
 const AMBER = "#FEBA4B";
-const ORANGE = "#EE7F1A";
+const ORANGE = "#DD6200";
 const INK = "#442C00"; // circle and "1", as in logo v1
 const NIGHT = "#1F1B16"; // adaptive icon background (values/ic_launcher_background.xml)
 
@@ -55,23 +55,25 @@ function mark(cx, cy, r) {
   const x = (u) => f(cx + u * r);
   const y = (v) => f(cy + v * r);
   const stem = 0.07;
-  const top = -0.58;
-  const foot = 0.56;
+  const top = -0.54;
+  const foot = 0.47;
   return {
-    width: f(0.24 * r),
+    width: f(0.3 * r),
     paths: [
       arc(cx, cy, r, 6, 270),
-      `M${x(-0.33)},${y(-0.3)} L${x(stem)},${y(top)} V${y(foot)}`,
-      `M${x(-0.3)},${y(foot)} H${x(0.44)}`,
+      `M${x(-0.3)},${y(-0.27)} L${x(stem)},${y(top)} V${y(foot)}`,
+      `M${x(-0.26)},${y(foot)} H${x(0.4)}`,
     ],
   };
 }
 
 // ---- Geometry -------------------------------------------------------------
-// Camera of logo v1 (body aspect 3:2, shutter on the top left), centered in the safe zone.
-const body = { x: 27, y: 39, w: 54, h: 36, r: 8 };
-const shutter = { x: 35, y: 34, w: 13, h: 3.4, r: 1.7 };
-const ring = { cx: 52.5, cy: 58, r: 12.6 };
+// Camera of logo v1 (squarer body, shutter on the top left). The ring sits in the center
+// of the body and of the icon canvas, so the camera leaves more room below than above
+// itself to balance the floating shutter.
+const body = { x: 29, y: 32, w: 50, h: 44, r: 9 };
+const shutter = { x: 37, y: 26.4, w: 13, h: 3.6, r: 1.8 };
+const ring = { cx: C, cy: C, r: 13.6 };
 
 const bodyPath = roundedRect(body.x, body.y, body.w, body.h, body.r);
 const shutterPath = roundedRect(shutter.x, shutter.y, shutter.w, shutter.h, shutter.r);
@@ -116,6 +118,8 @@ function assertSafe() {
     const dist = Math.hypot(x - C, y - C);
     if (dist > SAFE_RADIUS) throw new Error(`point ${x},${y} is ${dist.toFixed(1)}dp from center, outside the safe zone`);
   }
+  const bodyCenter = [body.x + body.w / 2, body.y + body.h / 2];
+  if (bodyCenter[0] !== ring.cx || bodyCenter[1] !== ring.cy) throw new Error(`ring is not at the body center ${bodyCenter}`);
   const ringOuter = 18 + themedMark.width / 2;
   if (ringOuter > SAFE_RADIUS) throw new Error(`themed mark reaches ${ringOuter}dp, outside the safe zone`);
 }
