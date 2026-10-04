@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 190" width="1200" height="380">
+  <defs><linearGradient id="amber" gradientUnits="userSpaceOnUse" x1="27" y1="34" x2="81" y2="75"><stop offset="0" stop-color="#FEBA4B"/><stop offset="1" stop-color="#EE7F1A"/></linearGradient></defs>
+  <rect width="100%" height="100%" fill="#FBF6EE"/>
+  <g transform="translate(20 20)"><defs><clipPath id="m0"><circle cx="54" cy="54" r="54"/></clipPath></defs><g clip-path="url(#m0)" transform="scale(1.111)" ><g transform="scale(1.5) translate(-18 -18)"><rect width="108" height="108" fill="#1F1B16"/>  <path d="M36.7,34 H46.3 A1.7,1.7 0 0 1 48,35.7 V35.7 A1.7,1.7 0 0 1 46.3,37.4 H36.7 A1.7,1.7 0 0 1 35,35.7 V35.7 A1.7,1.7 0 0 1 36.7,34 Z" fill="url(#amber)"/>
+  <path d="M35,39 H73 A8,8 0 0 1 81,47 V67 A8,8 0 0 1 73,75 H35 A8,8 0 0 1 27,67 V47 A8,8 0 0 1 35,39 Z" fill="url(#amber)"/>
+  <path d="M65.03,59.32 A12.6,12.6 0 1 1 52.5,45.4" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.34,54.22 L53.38,50.69 V65.06" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.72,65.06 H58.04" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/></g></g><text x="60" y="140" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#5b5146">circle</text></g>
+  <g transform="translate(160 20)"><defs><clipPath id="m1"><rect x="0" y="0" width="108" height="108" rx="34"/></clipPath></defs><g clip-path="url(#m1)" transform="scale(1.111)" ><g transform="scale(1.5) translate(-18 -18)"><rect width="108" height="108" fill="#1F1B16"/>  <path d="M36.7,34 H46.3 A1.7,1.7 0 0 1 48,35.7 V35.7 A1.7,1.7 0 0 1 46.3,37.4 H36.7 A1.7,1.7 0 0 1 35,35.7 V35.7 A1.7,1.7 0 0 1 36.7,34 Z" fill="url(#amber)"/>
+  <path d="M35,39 H73 A8,8 0 0 1 81,47 V67 A8,8 0 0 1 73,75 H35 A8,8 0 0 1 27,67 V47 A8,8 0 0 1 35,39 Z" fill="url(#amber)"/>
+  <path d="M65.03,59.32 A12.6,12.6 0 1 1 52.5,45.4" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.34,54.22 L53.38,50.69 V65.06" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.72,65.06 H58.04" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/></g></g><text x="60" y="140" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#5b5146">squircle</text></g>
+  <g transform="translate(300 20)"><defs><clipPath id="m2"><rect x="0" y="0" width="108" height="108" rx="18"/></clipPath></defs><g clip-path="url(#m2)" transform="scale(1.111)" ><g transform="scale(1.5) translate(-18 -18)"><rect width="108" height="108" fill="#1F1B16"/>  <path d="M36.7,34 H46.3 A1.7,1.7 0 0 1 48,35.7 V35.7 A1.7,1.7 0 0 1 46.3,37.4 H36.7 A1.7,1.7 0 0 1 35,35.7 V35.7 A1.7,1.7 0 0 1 36.7,34 Z" fill="url(#amber)"/>
+  <path d="M35,39 H73 A8,8 0 0 1 81,47 V67 A8,8 0 0 1 73,75 H35 A8,8 0 0 1 27,67 V47 A8,8 0 0 1 35,39 Z" fill="url(#amber)"/>
+  <path d="M65.03,59.32 A12.6,12.6 0 1 1 52.5,45.4" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.34,54.22 L53.38,50.69 V65.06" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.72,65.06 H58.04" fill="none" stroke="#442C00" stroke-width="3.02" stroke-linecap="round" stroke-linejoin="round"/></g></g><text x="60" y="140" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#5b5146">rounded square</text></g>
+  <g transform="translate(440 20)"><defs><clipPath id="m3"><circle cx="54" cy="54" r="54"/></clipPath></defs><g clip-path="url(#m3)" transform="scale(1.111)" ><g transform="scale(1.5) translate(-18 -18)"><rect width="108" height="108" fill="#E6DFF7"/><g fill="#4A3D7A" stroke="#4A3D7A">  <path d="M71.9,55.88 A18,18 0 1 1 54,36" fill="none" stroke="#4A3D7A" stroke-width="4.32" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.06,48.6 L55.26,43.56 V64.08" fill="none" stroke="#4A3D7A" stroke-width="4.32" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48.6,64.08 H61.92" fill="none" stroke="#4A3D7A" stroke-width="4.32" stroke-linecap="round" stroke-linejoin="round"/></g></g></g><text x="60" y="140" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#5b5146">themed (Android 13+)</text></g>
+</svg>
