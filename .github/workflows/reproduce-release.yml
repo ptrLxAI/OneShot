@@ -1,0 +1,55 @@
+name: Reproduce release
+
+# Rebuild a published release from source in an F-Droid-like Debian container and verify that
+# the published OneShot.apk is exactly that build plus a signature (what F-Droid checks).
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: Repository that published the release
+        default: ptrLx/OneShot
+      tag:
+        description: Release tag
+        default: v1.1.1
+      image:
+        description: Debian image used by the F-Droid buildserver for this release
+        default: debian:bullseye
+      jdk:
+        description: Debian OpenJDK major version
+        default: '11'
+  pull_request:
+    paths:
+      - .github/workflows/reproduce-release.yml
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    name: Reproduce ${{ inputs.repository || 'ptrLx/OneShot' }}@${{ inputs.tag || 'v1.1.1' }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.image || 'debian:bullseye' }}
+      volumes:
+        - /usr/local/lib/android/sdk:/opt/android-sdk
+    env:
+      ANDROID_HOME: /opt/android-sdk
+      REPO: ${{ inputs.repository || 'ptrLx/OneShot' }}
+      TAG: ${{ inputs.tag || 'v1.1.1' }}
+    steps:
+      - name: Install Debian JDK and apksigcopier
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends openjdk-${{ inputs.jdk || '11' }}-jdk-headless git ca-certificates unzip curl python3-pip >/dev/null
+          pip3 install --quiet apksigcopier
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ env.REPO }}
+          ref: ${{ env.TAG }}
+      - name: Build unsigned release like F-Droid
+        run: ./gradlew --no-daemon assembleRelease
+      - name: Compare with the published OneShot.apk
+        run: |
+          curl -fsSL -o OneShot.apk "https://github.com/$REPO/releases/download/$TAG/OneShot.apk"
+          apksigcopier compare OneShot.apk --unsigned app/build/outputs/apk/release/app-release-unsigned.apk
+          echo "$REPO@$TAG reproduces the published OneShot.apk"
