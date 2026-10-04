@@ -9,8 +9,12 @@ on:
         description: Repository that published the release
         default: ptrLx/OneShot
       tag:
-        description: Release tag
+        description: Release tag (where OneShot.apk is published)
         default: v1.1.1
+      ref:
+        description: Commit to build, as in the F-Droid recipe (empty = the tag)
+        # The v1.1.1 tag points to 319fba1, F-Droid built a3f3b35 (adds the baseline profile sort fix).
+        default: a3f3b358fe56ac73b25b7810595004d7a7ba2140
       image:
         description: Debian image used by the F-Droid buildserver for this release
         default: debian:bullseye
@@ -36,6 +40,7 @@ jobs:
       ANDROID_HOME: /opt/android-sdk
       REPO: ${{ inputs.repository || 'ptrLx/OneShot' }}
       TAG: ${{ inputs.tag || 'v1.1.1' }}
+      REF: ${{ github.event_name == 'workflow_dispatch' && (inputs.ref || inputs.tag) || 'a3f3b358fe56ac73b25b7810595004d7a7ba2140' }}
     steps:
       - name: Install Debian JDK and apksigcopier
         run: |
@@ -53,7 +58,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: ${{ env.REPO }}
-          ref: ${{ env.TAG }}
+          ref: ${{ env.REF }}
       - name: Build unsigned release like F-Droid
         run: ./gradlew --no-daemon assembleRelease
       - name: Compare with the published OneShot.apk
@@ -62,4 +67,4 @@ jobs:
           # apksigcopier verifies with apksigner from the SDK build-tools
           export PATH="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1):$PATH"
           apksigcopier compare OneShot.apk --unsigned app/build/outputs/apk/release/app-release-unsigned.apk
-          echo "$REPO@$TAG reproduces the published OneShot.apk"
+          echo "$REPO@$REF reproduces the OneShot.apk published at $TAG"
