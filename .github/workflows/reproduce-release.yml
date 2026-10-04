@@ -59,5 +59,7 @@ jobs:
       - name: Compare with the published OneShot.apk
         run: |
           curl -fsSL -o OneShot.apk "https://github.com/$REPO/releases/download/$TAG/OneShot.apk"
+          # apksigcopier verifies with apksigner from the SDK build-tools
+          export PATH="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1):$PATH"
           apksigcopier compare OneShot.apk --unsigned app/build/outputs/apk/release/app-release-unsigned.apk
           echo "$REPO@$TAG reproduces the published OneShot.apk"
