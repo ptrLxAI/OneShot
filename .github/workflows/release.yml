@@ -59,6 +59,7 @@ jobs:
     if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
     # Same environment as the CI reproducibility job, so F-Droid's rebuild matches byte for byte.
+    # The F-Droid buildserver now uses debian:trixie + OpenJDK 21: switched together with #26.
     container:
       image: debian:bullseye
       volumes:
@@ -68,6 +69,11 @@ jobs:
     steps:
       - name: Install Debian JDK and apksigcopier
         run: |
+          . /etc/os-release
+          if [ "$VERSION_CODENAME" = bullseye ]; then
+            # Debian 11 left LTS in 2026 and its security pool is archived; main still resolves.
+            sed -i '/debian-security/d' /etc/apt/sources.list
+          fi
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends openjdk-11-jdk-headless git ca-certificates unzip python3-pip >/dev/null
           pip3 install --quiet apksigcopier
