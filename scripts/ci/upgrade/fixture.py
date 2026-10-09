@@ -83,6 +83,10 @@ def dump_db(path):
         con.close()
 
 
+def first_image():
+    print(ROWS[0][3])
+
+
 if __name__ == "__main__":
     command, *args = sys.argv[1:]
-    {"seed-db": seed_db, "datastore": datastore, "images": images, "dump-db": dump_db}[command](*args)
+    {"seed-db": seed_db, "datastore": datastore, "images": images, "dump-db": dump_db, "first-image": first_image}[command](*args)

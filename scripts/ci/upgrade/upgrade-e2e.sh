@@ -119,6 +119,15 @@ dump a-old
 cat "$out/a-old/state.txt"
 end
 
+step "Diagnostics: image access"
+doc_uri="${tree_uri}/document/primary%3AOneShot%2F$("$here/fixture.py" first-image)"
+echo "document uri: $doc_uri"
+echo "provider serves $(adb shell content read --uri "$doc_uri" 2>&1 | wc -c) bytes (as root)"
+adb shell content query --uri "$tree_uri/document/primary%3AOneShot/children" --projection _display_name:mime_type 2>&1 | head -8 || true
+adb shell dumpsys activity permissions 2>/dev/null | grep -B3 -A6 "$pkg" | head -20 || true
+adb shell ls -lZ "$folder" | head -4 || true
+end
+
 step "Upgrade in place"
 adb install -r "$new_apk"
 adb shell dumpsys package $pkg | grep -m2 -E "versionName|targetSdk"
