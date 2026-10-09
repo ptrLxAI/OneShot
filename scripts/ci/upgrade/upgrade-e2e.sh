@@ -63,6 +63,8 @@ adb shell ls "$data/databases/diary_entry_db" >/dev/null || { echo "::error::old
 end
 
 step "Seed data like v1.1.1 stores it"
+mkdir -p "$out/seed"
+mkdir -p "$out/seed"
 adb pull "$data/databases" "$out/seed/" >/dev/null
 "$here/fixture.py" seed-db "$out/seed/databases/diary_entry_db"
 adb shell rm -f "$data/databases/diary_entry_db-wal" "$data/databases/diary_entry_db-shm"
