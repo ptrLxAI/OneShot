@@ -40,6 +40,17 @@ cards() {
   adb pull /sdcard/ui.xml "$out/ui.xml" >/dev/null 2>&1
   grep -o 'content-desc="Diary entry: [^"]*"' "$out/ui.xml" | wc -l
 }
+wait_app() {
+  # After a framework restart the package manager can need a while before it resolves the activity.
+  for _ in $(seq 1 30); do
+    adb shell cmd package resolve-activity --brief -n "$activity" 2>/dev/null | grep -q "$pkg/" && return 0
+    sleep 3
+  done
+  echo "::error::$activity does not resolve"
+  adb shell pm path "$pkg" || true
+  adb shell dumpsys package "$pkg" | grep -E "versionName|enabled|installed|stopped|suspended|hidden" | head -20 || true
+  return 1
+}
 app_owner() { adb shell stat -c %u "$data" | tr -d '\r'; }
 dump() {
   local dir=$out/$1
@@ -92,6 +103,7 @@ adb shell chown system:system /data/system/urigrants.xml
 adb shell restorecon /data/system/urigrants.xml
 adb shell stop; adb shell start; wait_boot     # the system reads the grants at boot
 adb root >/dev/null; wait_boot
+wait_app
 adb shell dumpsys activity permissions | grep -A3 "$pkg" | head -8 || true
 end
 
