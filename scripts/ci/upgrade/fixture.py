@@ -9,8 +9,6 @@
 import pathlib
 import shutil
 import sqlite3
-import struct
-import subprocess
 import sys
 import tempfile
 
@@ -59,28 +57,13 @@ def datastore(out, tree_uri):
     pathlib.Path(out).write_bytes(_field(1, entry))
 
 
-def _bmp(width, height, rgb):
-    row = bytes(reversed(rgb)) * width
-    row += b"\0" * (-len(row) % 4)
-    data = row * height
-    header = b"BM" + struct.pack("<IHHI", 54 + len(data), 0, 0, 54)
-    info = struct.pack("<IiiHHIIiiII", 40, width, height, 1, 24, 0, len(data), 2835, 2835, 0, 0)
-    return header + info + data
-
-
 def images(directory):
-    # Real JPEGs like the camera writes (ImageMagick is preinstalled on the CI runners); BMP data as a
-    # fallback only, since a .jpg name with other content may be treated differently by image loaders.
+    # Small camera-like JPEGs (scripts/ci/upgrade/images/1..6.jpg), named the way the app names them.
     out = pathlib.Path(directory)
     out.mkdir(parents=True, exist_ok=True)
-    magick = shutil.which("magick") or shutil.which("convert")
-    for i, row in enumerate(ROWS):
-        color = (40 * i % 256, 120, (200 - 30 * i) % 256)
-        target = out / row[3]
-        if magick:
-            subprocess.run([magick, "-size", "320x240", f"xc:rgb{color}", "-quality", "90", f"jpeg:{target}"], check=True)
-        else:
-            target.write_bytes(_bmp(96, 96, color))
+    source = pathlib.Path(__file__).with_name("images")
+    for i, row in enumerate(ROWS, start=1):
+        shutil.copy(source / f"{i}.jpg", out / row[3])
 
 
 def dump_db(path):
