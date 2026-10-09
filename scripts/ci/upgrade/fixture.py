@@ -10,6 +10,7 @@ import pathlib
 import shutil
 import sqlite3
 import struct
+import subprocess
 import sys
 import tempfile
 
@@ -68,11 +69,18 @@ def _bmp(width, height, rgb):
 
 
 def images(directory):
-    # Any format BitmapFactory decodes works; the app only cares about the file name.
+    # Real JPEGs like the camera writes (ImageMagick is preinstalled on the CI runners); BMP data as a
+    # fallback only, since a .jpg name with other content may be treated differently by image loaders.
     out = pathlib.Path(directory)
     out.mkdir(parents=True, exist_ok=True)
+    magick = shutil.which("magick") or shutil.which("convert")
     for i, row in enumerate(ROWS):
-        (out / row[3]).write_bytes(_bmp(96, 96, (40 * i % 256, 120, 200 - 30 * i % 256)))
+        color = (40 * i % 256, 120, (200 - 30 * i) % 256)
+        target = out / row[3]
+        if magick:
+            subprocess.run([magick, "-size", "320x240", f"xc:rgb{color}", "-quality", "90", f"jpeg:{target}"], check=True)
+        else:
+            target.write_bytes(_bmp(96, 96, color))
 
 
 def dump_db(path):
