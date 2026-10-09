@@ -4,6 +4,7 @@
 # database, the DataStore settings and the images are unchanged and that the new app shows every entry.
 # Needs an emulator image with root (google_apis). Usage: upgrade-e2e.sh <old.apk> <new.apk>
 set -euo pipefail
+trap 'echo "::error::upgrade-e2e.sh line $LINENO failed: $BASH_COMMAND"' ERR
 old_apk=$1
 new_apk=$2
 here=$(cd "$(dirname "$0")" && pwd)
@@ -23,7 +24,7 @@ wait_boot() {
   until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 2; done
   sleep 5
 }
-launch() { adb shell am start -W -n "$activity" >/dev/null; sleep "${1:-6}"; }
+launch() { adb shell am start -W -n "$activity" | grep -E "Status|Error|LaunchState" || true; sleep "${1:-6}"; }
 tap() {
   adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
   adb pull /sdcard/ui.xml "$out/ui.xml" >/dev/null 2>&1
@@ -56,7 +57,7 @@ step "Root and install the old release"
 adb root >/dev/null; wait_boot
 adb uninstall $pkg >/dev/null 2>&1 || true
 adb install "$old_apk"
-adb shell dumpsys package $pkg | grep -m1 versionName
+adb shell dumpsys package $pkg | grep -m2 -E "versionName|targetSdk"
 launch                                        # the old app creates its database
 adb shell am force-stop $pkg
 adb shell ls "$data/databases/diary_entry_db" >/dev/null || { echo "::error::old app did not create its database"; exit 1; }
@@ -95,7 +96,7 @@ adb shell dumpsys activity permissions | grep -A3 "$pkg" | head -8 || true
 end
 
 step "Old release runs with the data"
-adb logcat -c
+adb logcat -c || true   # some images refuse to clear a buffer
 launch
 tap Diary && sleep 4
 adb exec-out screencap -p > "$out/1-old-diary.png"
@@ -108,7 +109,7 @@ end
 
 step "Upgrade in place"
 adb install -r "$new_apk"
-adb shell dumpsys package $pkg | grep -m1 versionName
+adb shell dumpsys package $pkg | grep -m2 -E "versionName|targetSdk"
 dump b-upgraded
 end
 
