@@ -1,0 +1,7 @@
+New features:
+• branding: add script-generated logo v2 with themed icon (#78)
+• ui: target Android 16 with edge-to-edge, predictive back and a splash screen (#96)
+Bug fixes:
+• import valid entries of a JSON export and report skipped invalid ones (#89)
+• Sort baseline.profm for reproducible builds
+• Sort baseline.profm for reproducible builds
